@@ -6,6 +6,7 @@ const app = express();
 
 app.use(cors());
 
+
 app.get('/acessar', async (req, res) => {
   const { url } = req.query;
   const browser = await puppeteer.launch({ headless: "new" });
@@ -28,6 +29,40 @@ app.get('/acessar', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Erro ao carregar a página' });
 
+  }
+});
+
+app.get('/searchArtist', async (req, res) => {
+  const { artista } = req.query;
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+
+  try {
+    const url = `https://www.cifraclub.com.br/${artista}`;
+    await page.goto(url);
+    
+    const pageTitle = await page.title();
+    console.log('Título:', pageTitle);
+
+    // Adicione aqui a lógica para extrair os dados do artista
+    const dataArtist = await page.evaluate(() => {
+      // Seletor CSS para o elemento que você deseja copiar
+      const element = document.querySelectorAll('.song-verified--inline');
+
+       // Extrair o texto de cada elemento e armazenar em um array
+       const dataArray = [];
+       element.forEach(element => {
+         dataArray.push(element.textContent);
+       });
+ 
+       return dataArray; // Retorna o array de textos dos elementos            
+    });
+    console.log(dataArtist)
+    await browser.close();
+
+    res.json({ title: pageTitle, data: 'Dados do artista', musics: dataArtist });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao carregar a página do artista' });
   }
 });
 
