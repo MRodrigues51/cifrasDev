@@ -38,7 +38,8 @@ app.get('/searchArtist', async (req, res) => {
   const page = await browser.newPage();
 
   try {
-    const url = `https://www.cifraclub.com.br/${artista}`;
+    const url = `https://www.cifraclub.com.br/${artista.split(' ').join('-')}`;
+    console.log('url',url)
     await page.goto(url);
     
     const pageTitle = await page.title();
